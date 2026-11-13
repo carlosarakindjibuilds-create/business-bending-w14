@@ -168,7 +168,7 @@ function CapturePage() {
   return (
     <main className="app-shell">
       <section className="audio-card" aria-labelledby="app-title">
-        <p className="eyebrow">Validator of the Trade</p>
+        <p className="eyebrow">Validador del Comercio</p>
         <h1 id="app-title">Tu puesto, a tu ritmo</h1>
         <p className="intro">
           Inicia la captura cuando estés lista. Si necesitas atender a alguien,
@@ -303,12 +303,21 @@ function CapturePage() {
 function AppNavigation() {
   const { pathname } = useLocation();
 
+  useEffect(() => {
+    const pageTitles = {
+      "/": "Captura | Validador del Comercio",
+      "/pricing": "Precios y simulador | Validador del Comercio",
+      "/about": "Memo de valor 10:1 | Validador del Comercio",
+    };
+    document.title = pageTitles[pathname] || "Validador del Comercio";
+  }, [pathname]);
+
   return (
     <header className="top-nav">
-      <Link className="nav-brand" to="/" aria-label="Validator of the Trade home">
-        Validator of the Trade
+      <Link className="nav-brand" to="/" aria-label="Inicio de Validador del Comercio">
+        Validador del Comercio
       </Link>
-      <nav className="nav-links" aria-label="Main navigation">
+      <nav className="nav-links" aria-label="Navegación principal">
         <Link aria-current={pathname === "/" ? "page" : undefined} to="/">Captura</Link>
         <Link aria-current={pathname === "/pricing" ? "page" : undefined} to="/pricing">
           Precios y Simulador

@@ -51,36 +51,49 @@ export const ASSUMPTION_BOUNDS = Object.freeze({
 
 const SAFE_SCENARIO_WORDS = new Set([
   "base",
+  "conservador",
   "conservative",
+  "crecimiento",
+  "escala",
+  "escenario",
   "demo",
   "forecast",
   "growth",
   "launch",
+  "lanzamiento",
   "model",
+  "modelo",
   "month",
+  "mes",
   "regional",
   "scale",
   "scenario",
+  "pronostico",
   "test",
+  "prueba",
 ]);
 
 export function sanitizeScenarioName(value) {
   if (typeof value !== "string") {
-    return { error: "Enter a scenario name using generic scenario terms." };
+    return { error: "Escribe un nombre de escenario con términos genéricos." };
   }
 
   const cleaned = value
     .replace(/<[^>]*>/g, " ")
-    .replace(/[^A-Za-z0-9\s_-]/g, " ")
+    .replace(/[^\p{L}\p{N}\s_-]/gu, " ")
     .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
   if (!cleaned || cleaned.length > 40) {
-    return { error: "Scenario names must contain 1–40 permitted characters." };
+    return { error: "El nombre debe tener entre 1 y 40 caracteres permitidos." };
   }
 
-  const words = cleaned.toLowerCase().split(" ");
+  const words = cleaned
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .split(" ");
   if (
     words.some(
       (word) =>
@@ -90,7 +103,7 @@ export function sanitizeScenarioName(value) {
   ) {
     return {
       error:
-        "Use generic terms only (for example: Launch, Month 6 Base, or Regional Scale). Only month numbers 1–12 are allowed; personal names, phone numbers, and identifying details are not allowed.",
+        "Usa solo términos genéricos (por ejemplo: Lanzamiento, Mes 6 Base o Escala Regional). Solo se permiten números de mes del 1 al 12; no uses nombres, teléfonos ni otros datos que identifiquen a una persona.",
     };
   }
 
@@ -116,7 +129,7 @@ export function validateAssumptions(value) {
 export function calculateRevenue(assumptions) {
   const valid = validateAssumptions(assumptions);
   if (!valid) {
-    throw new Error("Revenue assumptions are outside the allowed ranges.");
+    throw new Error("Los supuestos de ingresos están fuera de los límites permitidos.");
   }
 
   const convertedTier2Accounts = Math.floor(
@@ -155,7 +168,7 @@ export function calculateRevenue(assumptions) {
 export function parseSavedScenarios(serialized) {
   const parsed = JSON.parse(serialized);
   if (!Array.isArray(parsed)) {
-    throw new Error("Saved scenarios have an invalid format.");
+    throw new Error("Los escenarios guardados tienen un formato no válido.");
   }
 
   let rejectedCount = 0;

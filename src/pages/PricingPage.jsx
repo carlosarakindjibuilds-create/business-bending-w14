@@ -18,14 +18,14 @@ const NUMBER = new Intl.NumberFormat("en-US");
 const CONTROLS = [
   {
     key: "sandboxAccounts",
-    label: "Tier 1 Sandbox accounts",
+    label: "Cuentas del entorno de pruebas de Nivel 1",
     min: 0,
     max: 200,
     step: 1,
   },
   {
     key: "conversionPercent",
-    label: "Sandbox-to-paid conversion rate",
+    label: "Tasa de conversión de pruebas a clientes de paga",
     min: 5,
     max: 50,
     step: 1,
@@ -33,21 +33,21 @@ const CONTROLS = [
   },
   {
     key: "tier2Profiles",
-    label: "Average monthly profiles per Tier 2 distributor",
+    label: "Perfiles mensuales promedio por distribuidor de Nivel 2",
     min: 100,
     max: 2000,
     step: 50,
   },
   {
     key: "enterpriseClients",
-    label: "Tier 3 Enterprise clients",
+    label: "Clientes empresariales de Nivel 3",
     min: 0,
     max: 20,
     step: 1,
   },
   {
     key: "tier3Profiles",
-    label: "Average monthly profiles per Tier 3 client",
+    label: "Perfiles mensuales promedio por cliente de Nivel 3",
     min: 500,
     max: 10000,
     step: 100,
@@ -58,6 +58,15 @@ function formatCurrency(value) {
   return `$${CURRENCY.format(Math.round(value))} MXN`;
 }
 
+function getScenarioDisplayName(scenario) {
+  const presetNames = {
+    "preset-conservative": "Lanzamiento conservador",
+    "preset-month-six": "Mes 6 base ($249k MXN)",
+    "preset-regional": "Escala regional",
+  };
+  return presetNames[scenario.id] || scenario.name;
+}
+
 function KpiCard({ label, monthly, annual, percent = false }) {
   const display = (value) =>
     percent ? `${value.toFixed(2)}%` : formatCurrency(value);
@@ -66,9 +75,9 @@ function KpiCard({ label, monthly, annual, percent = false }) {
     <article className="kpi-card">
       <h3>{label}</h3>
       <p className="kpi-value">{display(monthly)}</p>
-      <p className="kpi-period">Monthly</p>
-      <p className="kpi-annual">{percent ? "Annualized margin" : display(annual)}</p>
-      <p className="kpi-period">Annual</p>
+      <p className="kpi-period">Mensual</p>
+      <p className="kpi-annual">{percent ? "Margen anualizado" : display(annual)}</p>
+      <p className="kpi-period">Anual</p>
     </article>
   );
 }
@@ -94,7 +103,7 @@ export default function PricingPage() {
             JSON.stringify(parsed.scenarios)
           );
           setStorageError(
-            `${parsed.rejectedCount} invalid or identifying scenario(s) were removed from this browser.`
+            `Se eliminaron de este navegador ${parsed.rejectedCount} escenario(s) no válido(s) o con datos identificables.`
           );
         }
       }
@@ -103,16 +112,16 @@ export default function PricingPage() {
         window.localStorage.removeItem(SCENARIO_STORAGE_KEY);
         setSavedScenarios([]);
         setStorageError(
-          `Invalid saved scenarios were cleared from this browser. ${
-            error instanceof Error ? error.message : "The stored data was invalid."
+          `Se borraron los escenarios guardados no válidos de este navegador. ${
+            error instanceof Error ? error.message : "Los datos guardados no eran válidos."
           }`
         );
       } catch (cleanupError) {
         setStorageError(
-          `Saved scenarios could not be validated or removed. ${
+          `No se pudieron validar ni eliminar los escenarios guardados. ${
             cleanupError instanceof Error
               ? cleanupError.message
-              : "Clear this app's local storage manually."
+              : "Borra manualmente el almacenamiento local de esta aplicación."
           }`
         );
       }
@@ -140,8 +149,8 @@ export default function PricingPage() {
     } catch (error) {
       setStorageError(
         error instanceof Error
-          ? `Scenarios could not be saved: ${error.message}`
-          : "Scenarios could not be saved in this browser."
+          ? `No se pudieron guardar los escenarios: ${error.message}`
+          : "No se pudieron guardar los escenarios en este navegador."
       );
       return false;
     }
@@ -156,7 +165,7 @@ export default function PricingPage() {
     }
     const validAssumptions = validateAssumptions(assumptions);
     if (!validAssumptions) {
-      setScenarioError("Simulator values are invalid. Reset the sliders and retry.");
+      setScenarioError("Los valores del simulador no son válidos. Restablece los controles e inténtalo de nuevo.");
       return;
     }
 
@@ -178,7 +187,7 @@ export default function PricingPage() {
   const loadScenario = (scenario) => {
     const validAssumptions = validateAssumptions(scenario.assumptions);
     if (!validAssumptions) {
-      setStorageError("This scenario contains invalid values and cannot be loaded.");
+      setStorageError("Este escenario contiene valores no válidos y no se puede cargar.");
       return;
     }
     setAssumptions(validAssumptions);
@@ -194,77 +203,79 @@ export default function PricingPage() {
     ...savedScenarios,
   ].map((scenario) => ({
     ...scenario,
+    displayName: getScenarioDisplayName(scenario),
     revenue: calculateRevenue(scenario.assumptions),
   }));
 
   return (
     <main className="content-shell pricing-page">
       <section className="page-heading">
-        <p className="eyebrow">Validator of the Trade · Pricing</p>
-        <h1>Pricing: The Number That Tells the Truth</h1>
+        <p className="eyebrow">Validador del Comercio · Precios</p>
+        <h1>Precios: el número que dice la verdad</h1>
         <p className="intro">
-          Two customer segments, three clear tiers, and a transparent model for
-          the economics behind verified cash-flow profiles.
+          Dos segmentos de clientes, tres niveles claros y un modelo transparente
+          de la economía detrás de los perfiles verificados de flujo de efectivo.
         </p>
       </section>
 
       <section aria-labelledby="plans-heading">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Two customer segments · three tiers</p>
-            <h2 id="plans-heading">Plans and pricing</h2>
+            <p className="eyebrow">Dos segmentos de clientes · tres niveles</p>
+            <h2 id="plans-heading">Planes y precios</h2>
           </div>
-          <p className="free-paid-key"><span>FREE</span> sandbox · <span>PAID</span> commercial and enterprise</p>
+          <p className="free-paid-key"><span>GRATIS</span> entorno de pruebas · <span>DE PAGA</span> comercial y empresarial</p>
         </div>
         <div className="tier-grid">
           <article className="tier-card">
-            <p className="tier-label">Tier 1 · FREE</p>
-            <h3>Developer Sandbox</h3>
-            <p className="tier-price">$0 MXN <span>/ month</span></p>
-            <p>Up to 10 test profiles/month using verified historical profiles from another region.</p>
+            <p className="tier-label">Nivel 1 · GRATIS</p>
+            <h3>Entorno de pruebas para desarrolladores</h3>
+            <p className="tier-price">$0 MXN <span>/ mes</span></p>
+            <p>Hasta 10 perfiles de prueba al mes, con perfiles históricos verificados de otra región.</p>
             <ul>
-              <li>Corporate RFC required.</li>
-              <li>Route-overlap blocking.</li>
-              <li>Anonymized JSON only.</li>
+              <li>Se requiere RFC de empresa.</li>
+              <li>Bloqueo si hay traslape de rutas.</li>
+              <li>Solo JSON anonimizado.</li>
             </ul>
           </article>
           <article className="tier-card tier-card--featured">
-            <p className="tier-label">Tier 2 · PAY PER PROFILE</p>
-            <h3>Commercial Distributor</h3>
-            <p className="tier-price">$30 MXN <span>/ validated profile</span></p>
-            <p>For FMCG distributors and wholesale <em>fiado</em> operations.</p>
+            <p className="tier-label">Nivel 2 · PAGO POR PERFIL</p>
+            <h3>Distribuidor comercial</h3>
+            <p className="tier-price">$30 MXN <span>/ perfil validado</span></p>
+            <p>Para distribuidores de productos de consumo y mayoristas que ofrecen <em>fiado</em>.</p>
             <ul>
-              <li>Live webhook bridge with ERP `Client #ID`.</li>
-              <li>Dual-loop Llama-3.1-70B; stated 95% accuracy SLA.</li>
-              <li>Automatic WhatsApp recovery after 90 seconds.</li>
-              <li>Masked output: `approval_status`, `credit_cap_mxn`, `confidence_score`.</li>
+              <li>Puente de webhook en vivo con el `Client #ID` del ERP.</li>
+              <li>Doble ciclo con Llama-3.1-70B; SLA de precisión declarado del 95%.</li>
+              <li>Recuperación automática por WhatsApp después de 90 segundos.</li>
+              <li>Respuesta enmascarada: `approval_status`, `credit_cap_mxn`, `confidence_score`.</li>
             </ul>
           </article>
           <article className="tier-card">
-            <p className="tier-label">Tier 3 · ENTERPRISE</p>
-            <h3>Enterprise SLA</h3>
-            <p className="tier-price">$15,000 MXN <span>/ month + $15 MXN/profile</span></p>
-            <p>For micro-insurers and high-volume financial institutions.</p>
+            <p className="tier-label">Nivel 3 · EMPRESARIAL</p>
+            <h3>Acuerdo de servicio empresarial (SLA)</h3>
+            <p className="tier-price">$15,000 MXN <span>/ mes + $15 MXN por perfil</span></p>
+            <p>Para microaseguradoras e instituciones financieras de alto volumen.</p>
             <ul>
-              <li>Unlimited volume and priority queue.</li>
-              <li>LFPDPPP audit logs.</li>
-              <li>Automatic purge of raw audio and telemetry after 24 hours.</li>
+              <li>Volumen ilimitado y cola prioritaria.</li>
+              <li>Bitácoras de auditoría conforme a la LFPDPPP.</li>
+              <li>Borrado automático del audio y la telemetría sin procesar a las 24 horas.</li>
             </ul>
           </article>
         </div>
         <p className="disclaimer">
-          Service levels and integrations describe the proposed offer; live ERP,
-          WhatsApp, and model services are not implemented by this simulator.
+          Los niveles de servicio y las integraciones describen la oferta
+          propuesta; este simulador no implementa servicios reales de ERP,
+          WhatsApp ni modelos de IA.
         </p>
       </section>
 
       <section className="simulator-section" aria-labelledby="simulator-heading">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Change an assumption and see the impact</p>
-            <h2 id="simulator-heading">Revenue Simulator</h2>
+            <p className="eyebrow">Cambia un supuesto y observa el resultado</p>
+            <h2 id="simulator-heading">Simulador de ingresos</h2>
           </div>
-          <span className="simulation-badge">SIMULATED DATA</span>
+          <span className="simulation-badge">DATOS SIMULADOS</span>
         </div>
 
         <div className="simulator-layout">
@@ -295,34 +306,35 @@ export default function PricingPage() {
             ))}
 
             <aside className="cogs-note">
-              <h3>Transparent unit-cost assumptions</h3>
-              <p>Base COGS: $2.50 MXN/profile</p>
+              <h3>Supuestos transparentes del costo por perfil</h3>
+              <p>Costo base: $2.50 MXN por perfil</p>
               <ul>
-                <li>$0.65 WhatsApp API</li>
+                <li>$0.65 API de WhatsApp</li>
                 <li>$0.50 Whisper</li>
                 <li>$1.10 Llama-3.1-70B</li>
-                <li>$0.25 storage/webhooks</li>
+                <li>$0.25 almacenamiento y webhooks</li>
               </ul>
               <p>
-                Plus 15% for retries: $2.50 × 1.15 = <strong>$2.875 MXN combined COGS/profile</strong>.
+                Más 15% por reintentos: $2.50 × 1.15 = <strong>$2.875 MXN de costo total por perfil</strong>.
               </p>
             </aside>
           </div>
 
           <div className="kpi-panel">
-            <h3>Monthly and annual projection</h3>
+            <h3>Proyección mensual y anual</h3>
             <p className="profile-total">
-              {NUMBER.format(revenue.totalProfiles)} total profiles / month
+              {NUMBER.format(revenue.totalProfiles)} perfiles en total al mes
             </p>
             <div className="kpi-grid">
-              <KpiCard label="Gross revenue" monthly={revenue.monthlyRevenue} annual={revenue.annualRevenue} />
-              <KpiCard label="COGS" monthly={revenue.monthlyCogs} annual={revenue.annualCogs} />
-              <KpiCard label="Net gross profit" monthly={revenue.monthlyGrossProfit} annual={revenue.annualGrossProfit} />
-              <KpiCard label="Gross margin" monthly={revenue.grossMarginPercent} annual={revenue.grossMarginPercent} percent />
+              <KpiCard label="Ingresos brutos" monthly={revenue.monthlyRevenue} annual={revenue.annualRevenue} />
+              <KpiCard label="Costo de ventas (COGS)" monthly={revenue.monthlyCogs} annual={revenue.annualCogs} />
+              <KpiCard label="Utilidad bruta neta" monthly={revenue.monthlyGrossProfit} annual={revenue.annualGrossProfit} />
+              <KpiCard label="Margen bruto" monthly={revenue.grossMarginPercent} annual={revenue.grossMarginPercent} percent />
             </div>
             <p className="calculation-note">
-              Tier 1 sandbox profiles are free; converted accounts are modeled
-              as Tier 2 customers. Gross profit is revenue minus modeled COGS.
+              Los perfiles del entorno de pruebas del Nivel 1 son gratis; las
+              cuentas convertidas se consideran clientes del Nivel 2. La
+              utilidad bruta es el ingreso menos el costo de ventas estimado.
             </p>
           </div>
         </div>
@@ -331,18 +343,19 @@ export default function PricingPage() {
       <section className="scenario-section" aria-labelledby="scenarios-heading">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">This browser only · no accounts or personal data</p>
-            <h2 id="scenarios-heading">Saved Scenarios</h2>
+            <p className="eyebrow">Solo en este navegador · sin cuentas ni datos personales</p>
+            <h2 id="scenarios-heading">Escenarios guardados</h2>
           </div>
-          <span className="simulation-badge">SIMULATED DATA</span>
+          <span className="simulation-badge">DATOS SIMULADOS</span>
         </div>
         <p className="scenario-privacy">
-          Scenarios contain only the five simulator assumptions and a generic
-          scenario label. Personal names, contact details, account identifiers,
-          and merchant data are rejected. Nothing is sent to a server.
+          Los escenarios solo contienen los cinco supuestos del simulador y un
+          nombre genérico. Se rechazan nombres de personas, datos de contacto,
+          identificadores de cuentas y datos de comerciantes. No se envía nada
+          a un servidor.
         </p>
         <form className="scenario-form" onSubmit={saveScenario}>
-          <label htmlFor="scenario-name">Scenario name (up to 40 characters)</label>
+          <label htmlFor="scenario-name">Nombre del escenario (máximo 40 caracteres)</label>
           <div className="scenario-form-row">
             <input
               id="scenario-name"
@@ -353,16 +366,16 @@ export default function PricingPage() {
                 setScenarioName(event.target.value);
                 setScenarioError("");
               }}
-              placeholder="e.g. Regional Scale"
+              placeholder="Por ejemplo: Escala Regional"
               aria-describedby="scenario-name-help"
             />
-            <button type="submit" className="primary-action">Save current assumptions</button>
+            <button type="submit" className="primary-action">Guardar supuestos actuales</button>
           </div>
           <p id="scenario-name-help" className="field-help">
-            Generic labels only: Scenario, Launch, Base, Month, Regional,
-          Scale, Conservative, Demo, Forecast, Growth, Model, or Test
-          (month numbers 1–12 only).
-          HTML, special characters, and personal identifiers are not allowed.
+            Usa solo etiquetas genéricas: Escenario, Lanzamiento, Base, Mes,
+            Regional, Escala, Conservador, Demo, Pronóstico, Crecimiento,
+            Modelo o Prueba (solo se permiten meses del 1 al 12). No se permite
+            HTML, caracteres especiales ni datos que identifiquen a una persona.
           </p>
           {scenarioError && <p className="error-message" role="alert">{scenarioError}</p>}
           {storageError && <p className="error-message" role="alert">{storageError}</p>}
@@ -372,26 +385,26 @@ export default function PricingPage() {
           {PRESET_SCENARIOS.map((scenario) => (
             <article className="scenario-row" key={scenario.id}>
               <div>
-                <strong>{scenario.name}</strong>
-                <span className="simulation-badge">SIMULATED DATA</span>
+                <strong>{getScenarioDisplayName(scenario)}</strong>
+                <span className="simulation-badge">DATOS SIMULADOS</span>
               </div>
               <button type="button" className="secondary-action" onClick={() => loadScenario(scenario)}>
-                Load
+                Cargar
               </button>
             </article>
           ))}
           {savedScenarios.map((scenario) => (
             <article className="scenario-row" key={scenario.id}>
               <div>
-                <strong>{scenario.name}</strong>
-                <span className="simulation-badge">SIMULATED DATA</span>
+                <strong>{getScenarioDisplayName(scenario)}</strong>
+                <span className="simulation-badge">DATOS SIMULADOS</span>
               </div>
               <div className="scenario-actions">
                 <button type="button" className="secondary-action" onClick={() => loadScenario(scenario)}>
-                  Load
+                  Cargar
                 </button>
                 <button type="button" className="delete-action" onClick={() => deleteScenario(scenario.id)}>
-                  Delete
+                  Eliminar
                 </button>
               </div>
             </article>
@@ -399,25 +412,25 @@ export default function PricingPage() {
         </div>
 
         <div className="comparison-section">
-          <h3>Side-by-side comparison</h3>
-          <div className="comparison-scroll" role="region" aria-label="Scenario comparison table" tabIndex={0}>
+          <h3>Comparación lado a lado</h3>
+          <div className="comparison-scroll" role="region" aria-label="Tabla comparativa de escenarios" tabIndex={0}>
             <table className="comparison-table">
               <thead>
                 <tr>
-                  <th scope="col">Scenario · simulated</th>
-                  <th scope="col">Accounts / conversion</th>
-                  <th scope="col">Tier 2 profiles</th>
-                  <th scope="col">Enterprise / profiles</th>
-                  <th scope="col">Profiles / month</th>
-                  <th scope="col">Revenue / month</th>
-                  <th scope="col">Gross profit / month</th>
-                  <th scope="col">Margin</th>
+                  <th scope="col">Escenario · datos simulados</th>
+                  <th scope="col">Cuentas / conversión</th>
+                  <th scope="col">Perfiles de Nivel 2</th>
+                  <th scope="col">Empresas / perfiles</th>
+                  <th scope="col">Perfiles / mes</th>
+                  <th scope="col">Ingresos / mes</th>
+                  <th scope="col">Utilidad bruta / mes</th>
+                  <th scope="col">Margen</th>
                 </tr>
               </thead>
               <tbody>
                 {scenariosForComparison.map((scenario) => (
                   <tr key={scenario.id}>
-                    <th scope="row">{scenario.name}</th>
+                    <th scope="row">{scenario.displayName}</th>
                     <td>{scenario.assumptions.sandboxAccounts} / {scenario.assumptions.conversionPercent}%</td>
                     <td>{NUMBER.format(scenario.revenue.tier2Profiles)}</td>
                     <td>{scenario.assumptions.enterpriseClients} / {NUMBER.format(scenario.revenue.tier3Profiles)}</td>
