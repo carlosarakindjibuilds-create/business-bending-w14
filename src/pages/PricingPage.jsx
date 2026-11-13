@@ -218,6 +218,12 @@ export default function PricingPage() {
         </p>
       </section>
 
+      <aside className="merchant-price-notice" aria-label="Nota para comerciantes">
+        <strong>Nota para comerciantes:</strong> El registro por voz para tu puesto
+        es 100% GRATIS ($0 MXN). Los planes siguientes son exclusivamente para
+        distribuidores mayoristas y microaseguradoras.
+      </aside>
+
       <section aria-labelledby="plans-heading">
         <div className="section-heading">
           <div>

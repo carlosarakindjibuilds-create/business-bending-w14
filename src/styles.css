@@ -368,6 +368,22 @@ h1 {
   width: min(100% - 32px, 1180px);
 }
 
+.merchant-price-notice {
+  margin: 0 0 24px;
+  padding: 16px 20px;
+  color: #294a32;
+  background: #edf4e9;
+  border: 1px solid #b9cbb0;
+  border-left: 5px solid #527b35;
+  border-radius: 12px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.merchant-price-notice strong {
+  font-weight: 850;
+}
+
 .section-heading {
   display: flex;
   align-items: flex-end;
