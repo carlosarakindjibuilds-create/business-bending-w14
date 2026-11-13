@@ -64,6 +64,15 @@ The three-year direction is a lightweight, consent-based trust and cash-flow sig
 4. Save, load, compare, and delete scenarios; validate names and ensure presets are visibly labeled `SIMULATED DATA`.
 5. Inspect responsive layout at a 360px viewport and verify the Vercel SPA rewrite.
 
+### Mechanical Test Log & Correction
+
+- `npm run build` passed after implementation and after the boundary fix.
+- The default model produced 10,200 profiles, $249,000 MXN revenue, $29,325 MXN COGS, $219,675 MXN gross profit, and 88.22% gross margin. The zero-revenue case returns a defined 0% margin; negative and above-maximum values are rejected.
+- A 360px browser check reported a 345px document client width and 345px scroll width, so the page had no horizontal overflow. Route navigation, direct refresh of `/about`, and the root capture control were verified.
+- A browser save/reload/delete check verified scenario persistence and deletion. The comparison table updates with the current assumptions.
+- **Bug found and fixed:** numeric-only scenario names could retain identifying numbers, and one invalid old record could block the entire scenario manager after validation tightened. Custom names now accept only generic allowlisted terms and month numbers 1–12; invalid stored records are removed and reported, while valid scenarios remain usable. Invalid numeric fields and names containing personal identifiers are rejected.
+- Vercel rewrite JSON validation and `git diff --check` passed.
+
 ## Diagrama de flujo de trabajo
 
 El diagrama describe el recorrido desde la captura hasta la tarjeta de confianza. IndexedDB conserva fragmentos recuperables; una interrupción del navegador no puede mantener activa la grabación, por lo que la recuperación retoma únicamente lo que alcanzó a persistirse. El almacenamiento del navegador está sujeto a cuota y políticas del dispositivo.

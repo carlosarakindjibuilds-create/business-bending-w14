@@ -18,4 +18,8 @@ The product needs buyer-facing pricing and a transparent revenue model without d
 
 ### Verification
 
-The packet defines the mechanical test plan. Build and scenario boundary checks will be recorded here after implementation.
+The packet defines the mechanical test plan and records the completed build, KPI, zero-margin, slider, name-sanitization, scenario persistence/deletion, route-refresh, and 360px layout checks.
+
+### Week 14 Mechanical Correction
+
+The initial name check allowed any digit sequence. Since an arbitrary number can be a phone number or other identifier, custom scenario labels now use a generic vocabulary allowlist with only month numbers 1–12. Saved records are validated on load; malformed or identifying records are removed with an explicit notice so they cannot silently block the manager or remain in browser storage. No personal data is needed to create or compare projections.
