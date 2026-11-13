@@ -1,5 +1,69 @@
 # Semana 13 — Packet Before Code
 
+## Week 14 — Pricing: The Number That Tells the Truth
+
+### Problem Statement & Target User
+
+Informal merchants in Mexico, represented by Doña Mari, age 54, at Metro Tacubaya, need access to commercial credit (*fiado*) without fearing tax surveillance. FMCG distributors and micro-insurers need verified cash-flow telemetry to make safer operational and credit decisions.
+
+### Success Definition
+
+Before this module closes, `/pricing` is live on Vercel with an interactive Revenue Simulator and saved scenarios in browser `localStorage`, and `/about` is live with the 10:1 Value Memo. Refreshing either route must load the SPA rather than return a 404. The Week 13 tactile/acoustic voice-capture flow remains intact at `/`.
+
+### Swimlane
+
+```mermaid
+flowchart TD
+    subgraph Vendor["Street Vendor"]
+        A["WhatsApp Voice capture"]
+        B["4-digit ERP ticket code"]
+        A --> B
+    end
+    subgraph Queue["Backend Queue"]
+        C["Whisper-tiny"]
+        D["Dual-Loop Llama-3.1-70B"]
+        E["Deterministic Output Masking"]
+        F["24h raw data purge"]
+        C --> D --> E --> F
+    end
+    subgraph Buyer["B2B Buyer"]
+        G["ERP Client #ID Bridge"]
+        H["/pricing Dashboard"]
+        G --> H
+    end
+    B --> C
+    E --> G
+```
+
+### Global → Local Benchmark
+
+- **Tala:** Its heavy APK requires SMS access, creating fear of SAT scrutiny. We avoid that invasive pattern and focus on consent-based voice and distributor records.
+- **JUMO:** Its data model relies on Telcel's data monopoly. We localize the signal by anchoring it to the distributor's ERP records instead.
+- **LenddoEFL:** Its 30-minute psychometric tests are a poor fit for a busy street merchant. We localize onboarding through passive analysis of a 30-second voice cadence, subject to consent and privacy safeguards.
+
+### 3-Year Light Charter & Scope Cut
+
+The three-year direction is a lightweight, consent-based trust and cash-flow signal connecting informal merchants to responsible B2B credit and insurance. This cut does **not** build real payment gateways or live ERP integrations. Dashboard prices, ERP bridges, model accuracy, and service levels describe the product offer, not integrations or guarantees implemented by this frontend.
+
+### Architecture & Stack
+
+| Area | Week 14 choice |
+|---|---|
+| UI | Existing Vite + React application; retain the Week 13 capture screen at `/` |
+| Navigation | `react-router-dom` routes for `/`, `/pricing`, and `/about` |
+| Deployment routing | Vercel SPA rewrite to `/index.html` |
+| Revenue calculations | Client-side deterministic calculations using bounded numeric inputs |
+| Scenario storage | Browser `localStorage`; simulated presets and user-created assumptions only |
+| Privacy | No real personal data in presets; no external database or API secrets |
+
+### Mechanical Test Plan
+
+1. Build with `npm run build`.
+2. Verify route navigation and retain the existing capture page without modifying its recording handlers or controls.
+3. Check all simulator slider bounds, default month-six totals, gross margin, and the zero-volume/zero-revenue case.
+4. Save, load, compare, and delete scenarios; validate names and ensure presets are visibly labeled `SIMULATED DATA`.
+5. Inspect responsive layout at a 360px viewport and verify the Vercel SPA rewrite.
+
 ## Diagrama de flujo de trabajo
 
 El diagrama describe el recorrido desde la captura hasta la tarjeta de confianza. IndexedDB conserva fragmentos recuperables; una interrupción del navegador no puede mantener activa la grabación, por lo que la recuperación retoma únicamente lo que alcanzó a persistirse. El almacenamiento del navegador está sujeto a cuota y políticas del dispositivo.
