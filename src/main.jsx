@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from "react-dom/client";
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ConsoleLogger from "./components/ConsoleLogger.jsx";
 import { useAudioRecovery } from "./hooks/useAudioRecovery.js";
 import { useTactileAudio } from "./hooks/useTactileAudio.js";
+import AboutPage from "./pages/AboutPage.jsx";
+import PricingPage from "./pages/PricingPage.jsx";
 import {
   clearAudioChunks,
   syncPendingAudioSessionToDrive,
 } from "./services/indexedDbService.js";
 import "./styles.css";
 
-function App() {
+function CapturePage() {
   const {
     closeRecording,
     clearAudioPreview,
@@ -294,6 +297,43 @@ function App() {
       </section>
       <ConsoleLogger />
     </main>
+  );
+}
+
+function AppNavigation() {
+  const { pathname } = useLocation();
+
+  return (
+    <header className="top-nav">
+      <Link className="nav-brand" to="/" aria-label="Validator of the Trade home">
+        Validator of the Trade
+      </Link>
+      <nav className="nav-links" aria-label="Main navigation">
+        <Link aria-current={pathname === "/" ? "page" : undefined} to="/">Captura</Link>
+        <Link aria-current={pathname === "/pricing" ? "page" : undefined} to="/pricing">
+          Precios y Simulador
+        </Link>
+        <Link aria-current={pathname === "/about" ? "page" : undefined} to="/about">
+          Memo 10:1
+        </Link>
+      </nav>
+    </header>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div className="site-shell">
+        <AppNavigation />
+        <Routes>
+          <Route path="/" element={<CapturePage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
