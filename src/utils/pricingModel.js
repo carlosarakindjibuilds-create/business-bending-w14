@@ -81,10 +81,16 @@ export function sanitizeScenarioName(value) {
   }
 
   const words = cleaned.toLowerCase().split(" ");
-  if (words.some((word) => !SAFE_SCENARIO_WORDS.has(word) && !/^\d+$/.test(word))) {
+  if (
+    words.some(
+      (word) =>
+        !SAFE_SCENARIO_WORDS.has(word) &&
+        !/^(?:[1-9]|1[0-2])$/.test(word)
+    )
+  ) {
     return {
       error:
-        "Use generic terms only (for example: Launch, Month 6 Base, or Regional Scale). Personal names and identifying details are not allowed.",
+        "Use generic terms only (for example: Launch, Month 6 Base, or Regional Scale). Only month numbers 1–12 are allowed; personal names, phone numbers, and identifying details are not allowed.",
     };
   }
 
@@ -152,12 +158,21 @@ export function parseSavedScenarios(serialized) {
     throw new Error("Saved scenarios have an invalid format.");
   }
 
-  return parsed.map((scenario) => {
+  let rejectedCount = 0;
+  const scenarios = parsed.flatMap((scenario) => {
     const safeName = sanitizeScenarioName(scenario?.name);
     const assumptions = validateAssumptions(scenario?.assumptions);
-    if (!safeName.name || !assumptions || typeof scenario.id !== "string") {
-      throw new Error("A saved scenario is invalid; clear or repair local storage.");
+    if (
+      !safeName.name ||
+      !assumptions ||
+      typeof scenario?.id !== "string" ||
+      !/^saved-\d+-\d+$/.test(scenario.id)
+    ) {
+      rejectedCount += 1;
+      return [];
     }
-    return { id: scenario.id, name: safeName.name, assumptions };
+    return [{ id: scenario.id, name: safeName.name, assumptions }];
   });
+
+  return { scenarios, rejectedCount };
 }

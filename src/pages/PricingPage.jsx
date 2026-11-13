@@ -86,14 +86,36 @@ export default function PricingPage() {
     try {
       const serialized = window.localStorage.getItem(SCENARIO_STORAGE_KEY);
       if (serialized) {
-        setSavedScenarios(parseSavedScenarios(serialized));
+        const parsed = parseSavedScenarios(serialized);
+        setSavedScenarios(parsed.scenarios);
+        if (parsed.rejectedCount > 0) {
+          window.localStorage.setItem(
+            SCENARIO_STORAGE_KEY,
+            JSON.stringify(parsed.scenarios)
+          );
+          setStorageError(
+            `${parsed.rejectedCount} invalid or identifying scenario(s) were removed from this browser.`
+          );
+        }
       }
     } catch (error) {
-      setStorageError(
-        error instanceof Error
-          ? error.message
-          : "Saved scenarios could not be loaded from this browser."
-      );
+      try {
+        window.localStorage.removeItem(SCENARIO_STORAGE_KEY);
+        setSavedScenarios([]);
+        setStorageError(
+          `Invalid saved scenarios were cleared from this browser. ${
+            error instanceof Error ? error.message : "The stored data was invalid."
+          }`
+        );
+      } catch (cleanupError) {
+        setStorageError(
+          `Saved scenarios could not be validated or removed. ${
+            cleanupError instanceof Error
+              ? cleanupError.message
+              : "Clear this app's local storage manually."
+          }`
+        );
+      }
     }
   }, []);
 
@@ -338,8 +360,9 @@ export default function PricingPage() {
           </div>
           <p id="scenario-name-help" className="field-help">
             Generic labels only: Scenario, Launch, Base, Month, Regional,
-            Scale, Conservative, Demo, Forecast, Growth, Model, or Test.
-            HTML, special characters, and personal identifiers are not allowed.
+          Scale, Conservative, Demo, Forecast, Growth, Model, or Test
+          (month numbers 1–12 only).
+          HTML, special characters, and personal identifiers are not allowed.
           </p>
           {scenarioError && <p className="error-message" role="alert">{scenarioError}</p>}
           {storageError && <p className="error-message" role="alert">{storageError}</p>}
